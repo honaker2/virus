@@ -1,0 +1,138 @@
+#include "big_number.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "my_string.h"
+#define SIZE 200
+
+BigNumber* CreateBN(char* number_)
+{
+	if (number_ == NULL || strlen(number_) == 0 ||
+		!IsIntString(number_))
+		return NULL;
+
+	BigNumber* bn = (BigNumber*)malloc(sizeof(BigNumber));
+	if (bn == NULL)
+		return NULL;
+
+	size_t size = strlen(number_);
+	if (*number_ == '-')
+	{
+		bn->size = size - 1;
+		bn->is_negative = true;
+		number_++;
+	}
+	else
+	{
+		bn->size = size;
+		bn->is_negative = false;
+	}
+
+	bn->digits = (digit*)calloc(bn->size, sizeof(digit));
+	if (bn->digits == NULL)
+	{
+		free(bn);
+		return NULL;
+	}
+
+	for (size_t i = 0; i < bn->size; ++i)
+		bn->digits[i] = number_[i] - '0';
+
+	return bn;
+}
+
+void DeleteBN(BigNumber** bn_)
+{
+	free((*bn_)->digits);
+	free(*bn_);
+
+	*bn_ = NULL;
+}
+
+void PrintBN(BigNumber* bn_)
+{
+	if (bn_ == NULL)
+	{
+		printf("BigNumber is empty!\n");
+		return;
+	}
+
+	if (bn_->is_negative)
+		printf("-");
+
+	for (size_t i = 0; i < bn_->size; ++i)
+		printf("%u", bn_->digits[i]);
+
+	printf("\n");
+}
+
+void SumBN(BigNumber* bn1_, BigNumber* bn2_)
+{
+	
+	BigNumber* result = malloc(sizeof(BigNumber));
+	if (result == NULL)
+		return NULL;
+
+	result->size = max(bn1_->size, bn2_->size) + 1;
+
+	result->digits = (digit*)calloc(result->size, sizeof(digit));
+	if (result->digits == NULL)
+		return NULL;
+
+	if (bn1_->is_negative != true && bn2_->is_negative != true) {
+		if (bn1_->size >= bn2_->size) {
+			{
+				unsigned int sub = bn1_->size - bn2_->size;
+				unsigned int q1 = 0;
+
+				for (int i = bn2_->size - 1; i > -1; --i)
+				{
+					unsigned int sum = bn1_->digits[i + sub] + bn2_->digits[i] + q1;
+
+					q1 = sum / 10;
+
+					result->digits[i + sub + 1] = sum % 10;
+				}
+			}
+		}
+	}
+	//else
+	//	strcpy(Sumbn_->digits, bn2_->digits);
+	
+	for (size_t i = 0; i < result->size; ++i)
+		printf("%u", result->digits[i]);
+
+	printf("\n");
+
+	free(result);
+
+}
+
+
+
+
+
+#include <stdio.h>
+#include "big_number.h"
+
+int main()
+{
+    char str[] = "111231";
+    char str2[] = "119871";
+    BigNumber* bn1_ = CreateBN(str);
+    if (bn1_ == NULL)
+        printf("bn == NULL!\n");
+
+    BigNumber* bn2_ = CreateBN(str2);
+    if (bn1_ == NULL)
+        printf("bn == NULL!\n");
+
+ 
+
+    PrintBN(bn1_);
+    PrintBN(bn2_);
+    SumBN(bn1_, bn2_);
+    return 0;
+}
