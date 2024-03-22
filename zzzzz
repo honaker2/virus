@@ -220,22 +220,28 @@ void SumBN(BigNumber* bn1_, BigNumber* bn2_)
 		if (bn2_->size > bn1_->size) {
 			{
 				unsigned int sub = bn2_->size - bn1_->size;
-				unsigned int q1 = 0;
 
 				for (int i = bn1_->size - 1 ; i > -1; --i)
 				{
 					if (bn2_->digits[i + sub + 1] < bn1_->digits[i])
 					{
-						for (int k = i; bn2_->digits[k + sub + 2] < bn1_->digits[k]; k--)
+						for(;bn2_->digits[i+sub+1] < bn1_->digits[i];)
 						{
-							for (int p = 1; bn2_->digits < 10; p++) {
-								if (bn2_->digits[k + sub + 2 - p] > 0)
-								{
-									bn2_->digits[k + sub + 2] + 10;
-									bn2_->digits[k + sub - p + 2] - 1;
-								}
+							int p = 1;
+							for (; bn2_->digits[i + sub + 1 - p] < 1; p++)
+							{ }
+							bn2_->digits[i + sub + 1 - p] -= 1;
+							bn2_->digits[i + sub + 2 - p] += 10;
+							for (; bn2_->digits[i + sub + 2 - p] > 9; p--)
+							{
+								bn2_->digits[i + sub + 3 - p] += 10;
+								bn2_->digits[i + sub + 2 - p] -= 1;
+
+								if (bn2_->digits[i + sub + 1] > 9)
+									break;
 							}
 						}
+
 					}
 					unsigned int sub_2 = bn2_->digits[i + sub + 1] - bn1_->digits[i];
 
