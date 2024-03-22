@@ -204,12 +204,11 @@ void SumBN(BigNumber* bn1_, BigNumber* bn2_)
 
 	}
 
-	///     -   +   +
+	///     -   +   +   ///     +   +   -
 	if (bn2_->is_negative == true && bn1_->is_negative != true) {
-		bn2_->size = bn2_->size - 1;
 		if (bn2_->size == bn1_->size)
 		{
-			for (int i = 0; bn2_->digits[i] == bn1_->digits[i]; i++)
+			for (int i = 1; bn2_->digits[i] == bn1_->digits[i]; i++)
 			{
 				if (bn2_->digits[i] > bn1_->digits[i])
 					bn2_->size > bn1_->size;
@@ -223,31 +222,33 @@ void SumBN(BigNumber* bn1_, BigNumber* bn2_)
 
 				for (int i = bn1_->size - 1 ; i > -1; --i)
 				{
-					if (bn2_->digits[i + sub + 1] < bn1_->digits[i])
+					if (bn2_->digits[i + sub ] < bn1_->digits[i])
 					{
-						for(;bn2_->digits[i+sub+1] < bn1_->digits[i];)
+						while(bn2_->digits[i+sub] < bn1_->digits[i])
 						{
 							int p = 1;
-							for (; bn2_->digits[i + sub + 1 - p] < 1; p++)
+							for (; bn2_->digits[i + sub  - p] < 1; p++)
 							{ }
-							bn2_->digits[i + sub + 1 - p] -= 1;
-							bn2_->digits[i + sub + 2 - p] += 10;
-							for (; bn2_->digits[i + sub + 2 - p] > 9; p--)
+							bn2_->digits[i + sub  - p] -= 1;
+							bn2_->digits[i + sub + 1 - p] += 10;
+							for (; bn2_->digits[i + sub + 1 - p] > 9; p--)
 							{
-								bn2_->digits[i + sub + 3 - p] += 10;
-								bn2_->digits[i + sub + 2 - p] -= 1;
-
-								if (bn2_->digits[i + sub + 1] > 9)
+								if (bn2_->digits[i + sub] > 9)
 									break;
+								bn2_->digits[i + sub + 2 - p] += 10;
+								bn2_->digits[i + sub + 1 - p] -= 1;
+
 							}
 						}
 
 					}
-					unsigned int sub_2 = bn2_->digits[i + sub + 1] - bn1_->digits[i];
+					unsigned int sub_2 = bn2_->digits[i + sub] - bn1_->digits[i];
 
 
 
-					result->digits[i + sub + 2] = sub_2;
+
+					result->digits[i + sub + 1] = sub_2;
+					bn2_->digits[i + sub] = bn2_->digits[i + sub] - bn1_->digits[i];
 				}
 				for (int d = bn2_->size - bn1_->size ; d > -1; --d) // заполнение оставшихся чисел большего числа, с проверкой на сумму > 10
 				{
@@ -257,12 +258,152 @@ void SumBN(BigNumber* bn1_, BigNumber* bn2_)
 			}
 			result->is_negative = true;
 		}
+		if (bn1_->size > bn2_->size) {
+			{
+				unsigned int sub = bn1_->size - bn2_->size;
+
+				for (int i = bn2_->size - 1; i > -1; --i)
+				{
+					if (bn1_->digits[i + sub] < bn2_->digits[i])
+					{
+						while (bn1_->digits[i + sub] < bn2_->digits[i])
+						{
+							int p = 1;
+							for (; bn1_->digits[i + sub - p] < 1; p++)
+							{
+							}
+							bn1_->digits[i + sub - p] -= 1;
+							bn1_->digits[i + sub + 1 - p] += 10;
+							for (; bn1_->digits[i + sub + 1 - p] > 9; p--)
+							{
+								if (bn1_->digits[i + sub] > 9)
+									break;
+								bn1_->digits[i + sub + 2 - p] += 10;
+								bn1_->digits[i + sub + 1 - p] -= 1;
+
+							}
+						}
+
+					}
+					unsigned int sub_2 = bn1_->digits[i + sub] - bn2_->digits[i];
+
+
+
+
+					result->digits[i + sub + 1] = sub_2;
+					bn1_->digits[i + sub] = bn1_->digits[i + sub] - bn2_->digits[i];
+				}
+				for (int d = bn1_->size - bn2_->size; d > -1; --d) // заполнение оставшихся чисел большего числа, с проверкой на сумму > 10
+				{
+
+					result->digits[d + 1] = bn1_->digits[d];
+				}
+			}
+		}
+	}
+
+	if (bn1_->is_negative == true && bn2_->is_negative != true) {
+		if (bn1_->size == bn2_->size)
+		{
+			for (int i = 1; bn1_->digits[i] == bn2_->digits[i]; i++)
+			{
+				if (bn1_->digits[i] > bn2_->digits[i])
+					bn1_->size > bn2_->size;
+				else
+					bn2_->size > bn1_->size;
+			}
+		}
+		if (bn1_->size > bn2_->size) {
+			{
+				unsigned int sub = bn1_->size - bn2_->size;
+
+				for (int i = bn2_->size - 1; i > -1; --i)
+				{
+					if (bn1_->digits[i + sub] < bn2_->digits[i])
+					{
+						while (bn1_->digits[i + sub] < bn2_->digits[i])
+						{
+							int p = 1;
+							for (; bn1_->digits[i + sub - p] < 1; p++)
+							{
+							}
+							bn1_->digits[i + sub - p] -= 1;
+							bn1_->digits[i + sub + 1 - p] += 10;
+							for (; bn1_->digits[i + sub + 1 - p] > 9; p--)
+							{
+								if (bn1_->digits[i + sub] > 9)
+									break;
+								bn1_->digits[i + sub + 2 - p] += 10;
+								bn1_->digits[i + sub + 1 - p] -= 1;
+
+							}
+						}
+
+					}
+					unsigned int sub_2 = bn1_->digits[i + sub] - bn2_->digits[i];
+
+
+
+
+					result->digits[i + sub + 1] = sub_2;
+					bn1_->digits[i + sub] = bn1_->digits[i + sub] - bn2_->digits[i];
+				}
+				for (int d = bn1_->size - bn2_->size; d > -1; --d) // заполнение оставшихся чисел большего числа, с проверкой на сумму > 10
+				{
+
+					result->digits[d + 1] = bn1_->digits[d];
+				}
+			}
+			result->is_negative = true;
+		}
+		if (bn2_->size > bn1_->size) {
+			{
+				unsigned int sub = bn2_->size - bn1_->size;
+
+				for (int i = bn1_->size - 1; i > -1; --i)
+				{
+					if (bn2_->digits[i + sub] < bn1_->digits[i])
+					{
+						while (bn2_->digits[i + sub] < bn1_->digits[i])
+						{
+							int p = 1;
+							for (; bn2_->digits[i + sub - p] < 1; p++)
+							{
+							}
+							bn2_->digits[i + sub - p] -= 1;
+							bn2_->digits[i + sub + 1 - p] += 10;
+							for (; bn2_->digits[i + sub + 1 - p] > 9; p--)
+							{
+								if (bn2_->digits[i + sub] > 9)
+									break;
+								bn2_->digits[i + sub + 2 - p] += 10;
+								bn2_->digits[i + sub + 1 - p] -= 1;
+
+							}
+						}
+
+					}
+					unsigned int sub_2 = bn2_->digits[i + sub] - bn1_->digits[i];
+
+
+
+
+					result->digits[i + sub + 1] = sub_2;
+					bn2_->digits[i + sub] = bn2_->digits[i + sub] - bn1_->digits[i];
+				}
+				for (int d = bn2_->size - bn1_->size; d > -1; --d) // заполнение оставшихся чисел большего числа, с проверкой на сумму > 10
+				{
+
+					result->digits[d + 1] = bn2_->digits[d];
+				}
+			}
+		}
 	}
 
 
 
 
-	if (result->is_negative = true)
+	if (result->is_negative == true)
 		printf("-");
 
 	for (size_t i = 1; i < result->size; ++i)
